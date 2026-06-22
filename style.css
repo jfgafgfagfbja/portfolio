@@ -755,9 +755,10 @@ input,textarea { font-family: inherit; }
   backdrop-filter:blur(4px);
   display:flex; align-items:center; justify-content:center; gap:12px;
   opacity:0;
-  transition:opacity var(--t) var(--ease);
+  visibility:hidden;
+  transition:opacity var(--t) var(--ease), visibility var(--t) var(--ease);
 }
-.project-card:hover .pc-overlay { opacity:1; }
+.project-card:hover .pc-overlay { opacity:1; visibility:visible; }
 .pc-link {
   padding:9px 18px;
   border:1.5px solid rgba(255,255,255,0.25);
