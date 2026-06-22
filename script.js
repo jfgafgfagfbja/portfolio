@@ -344,9 +344,13 @@ function animateCounter(el) {
   const success = document.getElementById('cfSuccess');
   if (!form) return;
 
-  form.addEventListener('submit', async e => {
-    e.preventDefault();
+  // Show success message if redirected back after Formspree submission
+  if (window.location.search.includes('sent=true')) {
+    if (success) success.classList.add('show');
+    window.history.replaceState({}, '', window.location.pathname);
+  }
 
+  form.addEventListener('submit', e => {
     // Basic validation
     let valid = true;
     form.querySelectorAll('[required]').forEach(field => {
@@ -367,33 +371,11 @@ function animateCounter(el) {
       emailField.style.borderColor = 'rgba(239,68,68,0.7)';
     }
 
-    if (!valid) return;
-
-    const submitBtn = form.querySelector('[type="submit"]');
-    const origHtml  = submitBtn.innerHTML;
-    submitBtn.disabled = true;
-    submitBtn.innerHTML = '<span>Sending…</span>';
-
-    try {
-      const response = await fetch('https://formspree.io/f/YOUR_FORM_ID', {
-        method: 'POST',
-        body: new FormData(form),
-        headers: { 'Accept': 'application/json' }
-      });
-
-      if (response.ok) {
-        form.reset();
-        if (success) success.classList.add('show');
-        setTimeout(() => success && success.classList.remove('show'), 5000);
-      } else {
-        alert('Gửi thất bại. Vui lòng thử lại sau.');
-      }
-    } catch {
-      alert('Có lỗi kết nối. Vui lòng thử lại.');
-    } finally {
-      submitBtn.disabled = false;
-      submitBtn.innerHTML = origHtml;
+    if (!valid) {
+      e.preventDefault();
+      return;
     }
+    // Valid — let native form submit to Formspree
   });
 
   // Clear error styling on input
