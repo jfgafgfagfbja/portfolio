@@ -344,7 +344,7 @@ function animateCounter(el) {
   const success = document.getElementById('cfSuccess');
   if (!form) return;
 
-  form.addEventListener('submit', e => {
+  form.addEventListener('submit', async e => {
     e.preventDefault();
 
     // Basic validation
@@ -369,19 +369,31 @@ function animateCounter(el) {
 
     if (!valid) return;
 
-    // Simulate send
     const submitBtn = form.querySelector('[type="submit"]');
     const origHtml  = submitBtn.innerHTML;
     submitBtn.disabled = true;
     submitBtn.innerHTML = '<span>Sending…</span>';
 
-    setTimeout(() => {
+    try {
+      const response = await fetch('https://formspree.io/f/YOUR_FORM_ID', {
+        method: 'POST',
+        body: new FormData(form),
+        headers: { 'Accept': 'application/json' }
+      });
+
+      if (response.ok) {
+        form.reset();
+        if (success) success.classList.add('show');
+        setTimeout(() => success && success.classList.remove('show'), 5000);
+      } else {
+        alert('Gửi thất bại. Vui lòng thử lại sau.');
+      }
+    } catch {
+      alert('Có lỗi kết nối. Vui lòng thử lại.');
+    } finally {
       submitBtn.disabled = false;
       submitBtn.innerHTML = origHtml;
-      form.reset();
-      if (success) success.classList.add('show');
-      setTimeout(() => success && success.classList.remove('show'), 5000);
-    }, 1200);
+    }
   });
 
   // Clear error styling on input
